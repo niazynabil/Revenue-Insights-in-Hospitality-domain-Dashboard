@@ -1,0 +1,103 @@
+#Measures = GENERATESERIES(1,1,1)
+------------------------------------------------------------------------------------------
+Total_Booking = COUNT(fact_bookings[booking_id])
+------------------------------------------------------------------------------------------
+Total_Capacity = SUM('fact_aggreagted-bookings'[capacity]) 
+--------------------------------------------------------------------------------------
+Total_Successful_Booking = SUM('fact_aggreagted-bookings'[successful_bookings])
+--------------------------------------------------------------------------------------------
+Occupancy% = DIVIDE([Total_Successful_Booking],[Total_Capacity],0)
+-----------------------------------------------------------------------------------------
+No of Days = DATEDIFF(MIN(dim_Date[date]),MAX(dim_Date[date]),day)+1
+---------------------------------------------------------------------------------
+Avg Rating = AVERAGE(fact_bookings[ratings_given])
+----------------------------------------------------------------------
+Total Cancelled booking = CALCULATE([Total_Booking],fact_bookings[booking_status]="Cancelled")
+----------------------------------------------------------------------------------------------------
+Cancellation% = DIVIDE([Total Cancelled booking],[Total_Booking])
+----------------------------------------------------------------------------
+Total Check out = CALCULATE([Total_Booking],fact_bookings[booking_status]="Checked Out")
+-------------------------------------------------------------------------------------------
+Total No show booking = CALCULATE([Total_Booking],fact_bookings[booking_status]="No Show")
+--------------------------------------------------------------------------------------------
+No Show Rate% = DIVIDE([Total No show booking],[Total_Booking],0)
+--------------------------------------------------------------------
+Booking % by platform = DIVIDE([Total_Booking],CALCULATE([Total_Booking],ALL(fact_bookings[booking_platform])))*100
+----------------------------------------------------------------------------------------------------------------------
+Booking % by Room class = DIVIDE([Total_Booking],CALCULATE([Total_Booking],ALL(dim_rooms[room_class])))*100
+-------------------------------------------------------------------------------------------------------------------
+ADR = DIVIDE( [Revenue], [Total_Booking],0)
+-----------------------------------------------------------------------------------------
+Realisations% = 1-([Cancellation%]+[No Show Rate%])
+--------------------------------------------------------------
+RevPAR = DIVIDE([Revenue],[Total_Capacity])
+-------------------------------------------------------------
+DBRN = DIVIDE([Total_Booking], [No of Days])
+-------------------------------------------------------
+DSRN = DIVIDE([Total_Capacity], [No of Days])
+---------------------------------------------------------------
+DURN = DIVIDE([Total Check out],[No of Days])
+-------------------------------------------------
+Revenue WoW change % = 
+Var selv = IF(HASONEFILTER(dim_date[wn]),SELECTEDVALUE(dim_date[wn]),MAX(dim_date[wn]))
+var revcw = CALCULATE([Revenue],dim_date[wn]= selv)
+var revpw =  CALCULATE([Revenue],FILTER(ALL(dim_date),dim_date[wn]= selv-1))
+
+return
+
+
+DIVIDE(revcw,revpw,0)-1
+----------------------------------------------------------------------------------------------
+Occupancy WoW change % = 
+Var selv = IF(HASONEFILTER(dim_date[wn]),SELECTEDVALUE(dim_date[wn]),MAX(dim_date[wn]))
+var revcw = CALCULATE([Occupancy%],dim_date[wn]= selv)
+var revpw =  CALCULATE([Occupancy%],FILTER(ALL(dim_date),dim_date[wn]= selv-1))
+
+return
+
+
+DIVIDE(revcw,revpw,0)-1
+------------------------------------------------------------------------------------------
+
+
+ADR WoW change % = 
+var selv =if(HASONEFILTER(dim_Date[Wn]),SELECTEDVALUE(dim_Date[Wn]),MAX(dim_Date[Wn]))
+var revcw=CALCULATE([ADR],dim_Date[Wn]=selv)
+var revpw =CALCULATE([ADR],FILTER(ALL(dim_Date),dim_Date[Wn]=selv-1))
+return
+DIVIDE(revcw,revpw,0)-1
+--------------------------------------------------------------------------
+Revpar WoW change % = 
+Var selv = IF(HASONEFILTER(dim_date[wn]),SELECTEDVALUE(dim_date[wn]),MAX(dim_date[wn]))
+var revcw = CALCULATE([RevPAR],dim_date[wn]= selv)
+var revpw =  CALCULATE([RevPAR],FILTER(ALL(dim_date),dim_date[wn]= selv-1))
+
+return
+
+
+DIVIDE(revcw,revpw,0)-1
+------------------------------------------------------------------------------------------
+
+Realisation WoW change % = 
+Var selv = IF(HASONEFILTER(dim_date[wn]),SELECTEDVALUE(dim_date[wn]),MAX(dim_date[wn]))
+var revcw = CALCULATE([Realisations%],dim_date[wn]= selv)
+var revpw =  CALCULATE([Realisations%],FILTER(ALL(dim_date),dim_date[wn]= selv-1))
+
+return
+
+
+DIVIDE(revcw,revpw,0)-1
+--------------------------------------------------------------------------------------------
+
+DSRN WoW change % = 
+Var selv = IF(HASONEFILTER(dim_date[wn]),SELECTEDVALUE(dim_date[wn]),MAX(dim_date[wn]))
+var revcw = CALCULATE([DSRN],dim_date[wn]= selv)
+var revpw =  CALCULATE([DSRN],FILTER(ALL(dim_date),dim_date[wn]= selv-1))
+
+return
+
+
+DIVIDE(revcw,revpw,0)-1
+------------------------------------------------------------------------------------------------
+
+
